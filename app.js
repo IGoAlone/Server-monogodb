@@ -6,6 +6,9 @@ var logger = require('morgan');
 
 
 var cctvRouter = require('./routes/cctv');
+var bellRouter = require('./routes/bell');
+var policeRouter = require('./routes/police');
+var storeRouter = require('./routes/store');
 
 var app = express();
 
@@ -20,6 +23,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/cctv', cctvRouter);
+app.use('/bell',bellRouter);
+app.use('/police',policeRouter);
+app.use('/store',storeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
