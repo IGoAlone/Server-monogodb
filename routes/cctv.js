@@ -5,7 +5,7 @@ var router = express.Router();
 var mongoose = require('mongoose');
 
 //몽고디비에 연결
-mongoose.connect('mongodb://127.0.0.1:27017/igoalone',{useUnifiedTopology:true,useNewUrlParser:true});
+mongoose.connect("mongodb://localhost:27017/igoalone",{useUnifiedTopology:true,useNewUrlParser:true});
 
 
 var db = mongoose.connection;
@@ -17,11 +17,14 @@ db.once('open',function callback(){
 });
 
 //디비 스키마 만드는 부분
-var cctvSchema = mongoose.Schema({
+var cctvSchema = mongoose.Schema(
+{  
     latitude:'number',
     longitude:'number',
     road_name:'string'
-});
+  
+}
+);
 
 //cctvSchema인 DB Schema를 Cctv모델로 컴파일
 var cctv = mongoose.model('cctv',cctvSchema);
@@ -30,7 +33,7 @@ var cctv = mongoose.model('cctv',cctvSchema);
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
   const result = await cctv.find({});
-  res.send(reseult);
+  res.send(result);
 });
 
 module.exports = router;
