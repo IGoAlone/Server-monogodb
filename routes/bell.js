@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 //몽구스 패키지 얻어오는 부분
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 //몽고디비에 연결
 mongoose.connect("mongodb://localhost:27017/igoalone",{useUnifiedTopology:true,useNewUrlParser:true});
@@ -17,23 +17,48 @@ db.once('open',function callback(){
 });
 
 //디비 스키마 만드는 부분
-var bellSchema = mongoose.Schema(
+const bellSchema = new mongoose.Schema(
 {  
-    latitude:'number',
-    longitude:'number',
-    road_name:'string'
+    latitude: {
+     type: Number
+    },
+    longitude: {
+      type: Number 
+    },
+    road: {
+      type: String
+    },
+    location : {
+      type: String
+    },
+    jibun : {
+      type: String
+    },
+    phone_number : {
+      type: String
+    },
   
-}
+} ,{collection : 'bell'}
 );
 
 //cctvSchema인 DB Schema를 bell모델로 컴파일
-var bell = mongoose.model('bell',bellSchema);
+const bellModel = mongoose.model('bell',bellSchema);
 
 
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
-  const result = await bell.find({});
-  res.send(result);
+  var reqLatitude = req.query.latitude;
+  var minLatitude = Number(reqLatitude) - 0.00016;
+  var maxLatitude = Number(reqLatitude) + 0.00016;
+  //var reqLongitude = req.params.longitude;
+  try {
+    const result = await bellModel.find({latitude : {$gte : minLatitude, $lte: maxLatitude}});
+    console.log("hello");
+    res.send(result);
+  }catch(err){
+    console.error(err);
+  }
+ 
 });
 
 module.exports = router;

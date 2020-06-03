@@ -17,23 +17,55 @@ db.once('open',function callback(){
 });
 
 //디비 스키마 만드는 부분
-var storeSchema = mongoose.Schema(
+var storeSchema = new mongoose.Schema(
 {  
-    latitude:'number',
-    longitude:'number',
-    road_name:'string'
-  
-}
+  latitude: {
+    type: Number
+   },
+   longitude: {
+     type: Number 
+   },
+   road: {
+     type: String
+   },
+   region : {
+     type: String
+   },
+   jibun : {
+     type: String
+   },
+   post_number : {
+     type: String
+   },
+   startday : {
+     type : Number
+   },
+   name : {
+    type: String
+  },
+
+}, {collection : 'store'}
 );
 
 //cctvSchema인 DB Schema를 Cctv모델로 컴파일
-var store = mongoose.model('store',storeSchema);
+var storeModel = mongoose.model('store',storeSchema);
 
 
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
-  const result = await store.find({});
-  res.send(result);
+  var reqLatitude = req.query.latitude;
+  console.log(reqLatitude);
+  var minLatitude = Number(reqLatitude) - 0.00016;
+  var maxLatitude = Number(reqLatitude) + 0.00016;
+  console.log(minLatitude, maxLatitude);
+  //var reqLongitude = req.params.longitude;
+  try {
+    const result = await storeModel.find({latitude : {$gte : minLatitude, $lte: maxLatitude}});
+    console.log("hello");
+    res.send(result);
+  }catch(err){
+    console.error(err);
+  }
 });
 
 module.exports = router;
