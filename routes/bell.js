@@ -44,21 +44,50 @@ const bellSchema = new mongoose.Schema(
 //cctvSchema인 DB Schema를 bell모델로 컴파일
 const bellModel = mongoose.model('bell',bellSchema);
 
+function calDistance(lat1, lon1, lat2, lon2){
+  var theta = lon1 - lon2;
+  dist = Math.sin(deg2rad(lat1))*Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) *
+  Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+  dist = Math.acos(dist);
+  dist = rad2deg(dist);
+  dist = dist * 60 * 1.1515;
+  dist = dist * 1.609344;
+  return Number(dist*1000).toFixed(2);
+}
 
+function deg2rad(deg){
+  return (deg * Math.PI / 180);
+}
+function rad2deg(rad){
+  return (rad * 180 / Math.PI);
+}
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
   var reqLatitude = req.query.latitude;
-  var minLatitude = Number(reqLatitude) - 0.00016;
-  var maxLatitude = Number(reqLatitude) + 0.00016;
-  //var reqLongitude = req.params.longitude;
+  var reqLongitude = req.query.longitude;
+  var distanceResult = new Array();
   try {
-    const result = await bellModel.find({latitude : {$gte : minLatitude, $lte: maxLatitude}});
-    console.log("hello");
-    res.send(result);
+    const result = await bellModel.find({});
+    for(let i = 0; i < result.length; i++){
+      if(calDistance(Number(reqLatitude), Number(reqLongitude), result[i].latitude, result[i].longitude) <= 50){
+          
+        distanceResult.push(result[i]);
+      }
+    }
+    if(distanceResult.length <= 3) {
+      distanceResult.length = []; //배열 초기화
+      for(let i = 0; i < result.length; i++){
+          if(calDistance(Number(reqLatitude), Number(reqLongitude), result[i].latitude, result[i].longitude) <= 100){
+            distanceResult.push(result[i]);
+          }
+      }
+    }
+    console.log(distanceResult);
+
+    res.send(distanceResult);
   }catch(err){
     console.error(err);
   }
- 
 });
 
 module.exports = router;
